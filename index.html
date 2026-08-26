@@ -113,11 +113,13 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
   var cv = document.getElementById('mesh'), g = cv.getContext('2d');
   var STEP = 32, R = 130, PULL = 0.26;
 
-  // Touch devices and reduced-motion users get a plain static mesh:
-  // no cursor tracking, no animation loop.
-  var still = matchMedia('(hover: none), (pointer: coarse)').matches ||
-              matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var dpr = Math.min(window.devicePixelRatio || 1, still ? 1.5 : 2);
+  // Touch-only devices and reduced-motion users get a plain static mesh:
+  // no cursor tracking, no animation loop. any-hover/any-pointer look at every
+  // input device, so a laptop with a touchscreen still counts as having a mouse.
+  var mm = window.matchMedia || function () { return { matches: false }; };
+  var reduce = mm('(prefers-reduced-motion: reduce)').matches;
+  var still = reduce || !mm('(any-hover: hover) and (any-pointer: fine)').matches;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   var w, h, cols, rows, X, Y, lastW = -1, timer, running = false;
   var mx = -9e3, my = -9e3, tx = mx, ty = my;
@@ -188,14 +190,15 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
     }, 150);
   });
 
-  if (!still) {
-    addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch') return;
-      tx = e.clientX; ty = e.clientY;
-    });
-    addEventListener('pointerleave', function () { tx = -9e3; ty = -9e3; });
-    document.addEventListener('visibilitychange', start);
-  }
+  // Always listen: if a real mouse shows up the effect switches itself on, even
+  // if the media queries above guessed wrong. Touch input never drives it.
+  addEventListener('pointermove', function (e) {
+    if (reduce || e.pointerType === 'touch') return;
+    tx = e.clientX; ty = e.clientY;
+    if (still) { still = false; mx = tx; my = ty; start(); }
+  });
+  addEventListener('pointerleave', function () { tx = -9e3; ty = -9e3; });
+  document.addEventListener('visibilitychange', start);
 
   size();
   if (still) draw(0); else start();
