@@ -117,8 +117,10 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
   // no cursor tracking, no animation loop. any-hover/any-pointer look at every
   // input device, so a laptop with a touchscreen still counts as having a mouse.
   var mm = window.matchMedia || function () { return { matches: false }; };
+  // reduce only silences the idle wobble — cursor tracking is user-driven
+  // motion, so it stays on. still = no pointer to track at all (phones).
   var reduce = mm('(prefers-reduced-motion: reduce)').matches;
-  var still = reduce || !mm('(any-hover: hover) and (any-pointer: fine)').matches;
+  var still = !mm('(any-hover: hover) and (any-pointer: fine)').matches;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   var w, h, cols, rows, X, Y, lastW = -1, timer, running = false;
@@ -142,7 +144,7 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
         if (!still) {
           dx = px - mx; dy = py - my; d = Math.sqrt(dx * dx + dy * dy) || 1;
           if (d < R) { f = 1 - d / R; f = f * f * R * PULL; px += dx / d * f; py += dy / d * f; }
-          px += Math.sin(py * 0.021 + t) * 1.0; py += Math.cos(px * 0.021 + t) * 1.0;
+          if (!reduce) { px += Math.sin(py * 0.021 + t) * 1.0; py += Math.cos(px * 0.021 + t) * 1.0; }
         }
         X[k] = px; Y[k] = py;
       }
@@ -193,7 +195,7 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
   // Always listen: if a real mouse shows up the effect switches itself on, even
   // if the media queries above guessed wrong. Touch input never drives it.
   addEventListener('pointermove', function (e) {
-    if (reduce || e.pointerType === 'touch') return;
+    if (e.pointerType === 'touch') return;
     tx = e.clientX; ty = e.clientY;
     if (still) { still = false; mx = tx; my = ty; start(); }
   });
