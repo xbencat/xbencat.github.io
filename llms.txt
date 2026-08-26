@@ -1,0 +1,26 @@
+# Gresper s. r. o.
+
+> Software company in Bratislava, Slovakia. Web applications, data science and
+> custom software — from database and API to the interface.
+
+## What it does
+
+- Web applications: full-stack development, REST APIs, relational databases, deployment.
+- Data science and data engineering: collection, cleaning, analysis, reporting, dashboards, models, automation.
+- Systems integration: importers, exporters, scheduled sync jobs, connecting systems that were not built to talk to each other.
+- Sports timing: a timing system for firesport (požiarny šport) competitions — reads the timing hardware at the track, shows live results at the venue, syncs results online into the app.
+
+## Contact
+
+- Email: gregor@gresper.sk
+- Address: Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovakia
+- Website: https://gresper.sk/
+
+## Company
+
+- Legal name: Gresper s. r. o.
+- Legal form: spoločnosť s ručením obmedzeným (Slovak limited liability company)
+- IČO: 57093628
+- Registry: Obchodný register Mestského súdu Bratislava III, oddiel Sro, vložka č. 190799/B
+- Registered: 19 August 2025
+- Public record: https://www.orsr.sk/vypis.asp?ID=731415&SID=2&P=0
