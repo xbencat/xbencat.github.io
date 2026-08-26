@@ -111,13 +111,19 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
 <script>
 (function () {
   var cv = document.getElementById('mesh'), g = cv.getContext('2d');
-  var STEP = 32, R = 130, PULL = 0.26, dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var w, h, cols, rows, X, Y;
+  var STEP = 32, R = 130, PULL = 0.26;
+
+  // Touch devices and reduced-motion users get a plain static mesh:
+  // no cursor tracking, no animation loop.
+  var still = matchMedia('(hover: none), (pointer: coarse)').matches ||
+              matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dpr = Math.min(window.devicePixelRatio || 1, still ? 1.5 : 2);
+
+  var w, h, cols, rows, X, Y, lastW = -1, timer, running = false;
   var mx = -9e3, my = -9e3, tx = mx, ty = my;
 
   function size() {
-    w = innerWidth; h = innerHeight;
+    w = innerWidth; h = innerHeight; lastW = w;
     cv.width = w * dpr; cv.height = h * dpr;
     cv.style.width = w + 'px'; cv.style.height = h + 'px';
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -125,17 +131,17 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
     X = new Float32Array(cols * rows); Y = new Float32Array(cols * rows);
   }
 
-  function frame(ts) {
-    mx += (tx - mx) * 0.09; my += (ty - my) * 0.09;
-    var t = calm ? 0 : ts * 0.0007, i, j, k, px, py, dx, dy, d, f;
-
+  function draw(t) {
+    var i, j, k, px, py, dx, dy, d, f;
     for (j = 0; j < rows; j++) {
       for (i = 0; i < cols; i++) {
         k = j * cols + i;
         px = i * STEP; py = j * STEP;
-        dx = px - mx; dy = py - my; d = Math.sqrt(dx * dx + dy * dy) || 1;
-        if (d < R) { f = 1 - d / R; f = f * f * R * PULL; px += dx / d * f; py += dy / d * f; }
-        if (!calm) { px += Math.sin(py * 0.021 + t) * 1.0; py += Math.cos(px * 0.021 + t) * 1.0; }
+        if (!still) {
+          dx = px - mx; dy = py - my; d = Math.sqrt(dx * dx + dy * dy) || 1;
+          if (d < R) { f = 1 - d / R; f = f * f * R * PULL; px += dx / d * f; py += dy / d * f; }
+          px += Math.sin(py * 0.021 + t) * 1.0; py += Math.cos(px * 0.021 + t) * 1.0;
+        }
         X[k] = px; Y[k] = py;
       }
     }
@@ -147,7 +153,7 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
         for (i = 0; i < cols; i++) {
           k = j * cols + i;
           dx = i * STEP - mx; dy = j * STEP - my;
-          var near = dx * dx + dy * dy < R * R;
+          var near = !still && dx * dx + dy * dy < R * R;
           if (near !== (pass === 1)) continue;
           if (i + 1 < cols) { g.moveTo(X[k], Y[k]); g.lineTo(X[k + 1], Y[k + 1]); }
           if (j + 1 < rows) { g.moveTo(X[k], Y[k]); g.lineTo(X[k + cols], Y[k + cols]); }
@@ -157,14 +163,42 @@ Gresper s. r. o., Karpatské námestie 10A, 831 06 Bratislava – Rača, Slovaki
       g.lineWidth = 1;
       g.stroke();
     }
+  }
+
+  function frame(ts) {
+    if (document.hidden) { running = false; return; }
+    mx += (tx - mx) * 0.09; my += (ty - my) * 0.09;
+    draw(ts * 0.0007);
     requestAnimationFrame(frame);
   }
 
-  addEventListener('resize', size);
-  addEventListener('pointermove', function (e) { tx = e.clientX; ty = e.clientY; });
-  addEventListener('pointerleave', function () { tx = -9e3; ty = -9e3; });
+  function start() {
+    if (still || running) return;
+    running = true; requestAnimationFrame(frame);
+  }
+
+  addEventListener('resize', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      // On phones the address bar showing/hiding fires resize with the same
+      // width — ignore those, only a real width change matters.
+      if (still && innerWidth === lastW) return;
+      size();
+      if (still) draw(0);
+    }, 150);
+  });
+
+  if (!still) {
+    addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;
+      tx = e.clientX; ty = e.clientY;
+    });
+    addEventListener('pointerleave', function () { tx = -9e3; ty = -9e3; });
+    document.addEventListener('visibilitychange', start);
+  }
+
   size();
-  requestAnimationFrame(frame);
+  if (still) draw(0); else start();
 })();
 </script>
 
