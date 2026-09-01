@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Split 2026 — itinerár</title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0a3d4d" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0a2028" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0a3d4d" id="tc">
+<script>
+/* apply the saved appearance before first paint — keep the key in sync with KEY below */
+try{var _t=JSON.parse(localStorage.getItem("split2026:v4")||"{}").theme;
+  if(_t==="light"||_t==="dark"){document.documentElement.setAttribute("data-theme",_t);
+    document.currentScript.previousElementSibling.setAttribute("content",_t==="dark"?"#0a2028":"#0a3d4d");}
+}catch(e){}
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -30,6 +36,7 @@
   --pine-soft:#e4efe8;
   --rose:#a8452f;
   --rose-soft:#f7e6e2;
+  --sea-ink:#0a3d4d;
   --sun-line:#eddcbb;
   --field:#fcfbf8;
   --card-2:#fbfaf7;
@@ -143,7 +150,7 @@ h2.sec:first-child{margin-top:4px}
 .dlist .t{color:var(--sea);font-weight:700;font-variant-numeric:tabular-nums}
 .acts{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
 .act{
-  padding:9px 13px;border-radius:10px;background:var(--sea-soft);color:var(--sea-deep);
+  padding:9px 13px;border-radius:10px;background:var(--sea-soft);color:var(--sea-ink);
   font-size:13.5px;font-weight:650;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
 }
 .act.ghost{background:var(--ghost);color:var(--muted)}
@@ -163,7 +170,7 @@ textarea{min-height:64px}
 .row .rt{flex:1;min-width:0}
 .row .rt strong{display:block;font-size:14.5px;font-weight:650}
 .row .rt span{display:block;font-size:13px;color:var(--muted);line-height:1.45;margin-top:2px}
-.row .rv{flex:none;max-width:47%;text-align:right;font-size:13.5px;font-weight:700;color:var(--sea-deep)}
+.row .rv{flex:none;max-width:47%;text-align:right;font-size:13.5px;font-weight:700;color:var(--sea-ink)}
 .row.checked .rt strong{text-decoration:line-through;color:var(--muted)}
 
 /* ---------- callouts ---------- */
@@ -260,10 +267,13 @@ main{padding-bottom:calc(94px + var(--safe-b))}
 }
 
 
-/* ---------- dark mode ---------- */
+/* ---------- dark mode ----------
+   Two blocks on purpose: the OS preference (unless the user forced light),
+   and the user's explicit choice. Keep them in sync. */
 @media (prefers-color-scheme:dark){
-  :root{
+  :root:not([data-theme="light"]){
     --sea-deep:#0d2f3a;
+    --sea-ink:#a9dee7;
     --sea:#5cbcc8;
     --sea-soft:#17353d;
     --stone:#0e181d;
@@ -290,13 +300,57 @@ main{padding-bottom:calc(94px + var(--safe-b))}
     --head-ink:#e7f1f3;
     --head-dim:#89a8b1;
     --shadow:none;
-  }
-  .day.today{box-shadow:0 0 0 2px rgba(92,188,200,.22)}
-  .sheet .bg{background:rgba(0,0,0,.6)}
-  .b-today{color:#08222a}
-  .addrow button{background:var(--sea);color:#08222a}
-  nav button[aria-selected="true"]{color:#fff}
 }
+  :root:not([data-theme="light"]) .day.today{box-shadow:0 0 0 2px rgba(92,188,200,.22)}
+  :root:not([data-theme="light"]) .sheet .bg{background:rgba(0,0,0,.6)}
+  :root:not([data-theme="light"]) .b-today{color:#08222a}
+  :root:not([data-theme="light"]) .addrow button{background:var(--sea);color:#08222a}
+  :root:not([data-theme="light"]) nav button[aria-selected="true"]{color:#fff}
+}
+:root[data-theme="dark"]{
+  --sea-deep:#0d2f3a;
+  --sea-ink:#a9dee7;
+  --sea:#5cbcc8;
+  --sea-soft:#17353d;
+  --stone:#0e181d;
+  --card:#16242b;
+  --ink:#e7eff1;
+  --muted:#93a7af;
+  --line:#26383f;
+  --sun:#e0a34f;
+  --sun-soft:#33270f;
+  --sun-line:#4a3a17;
+  --pine:#5aa87d;
+  --pine-soft:#183024;
+  --rose:#e08d78;
+  --rose-soft:#3a201a;
+  --field:#111d23;
+  --card-2:#131f25;
+  --ghost:#1d2b32;
+  --work:#7b8f98;
+  --work-soft:#1e2b31;
+  --work-ink:#a4b6bd;
+  --handle:#3a4c54;
+  --veil:rgba(14,24,29,.94);
+  --head:#0a2028;
+  --head-ink:#e7f1f3;
+  --head-dim:#89a8b1;
+  --shadow:none;
+}
+:root[data-theme="dark"] .day.today{box-shadow:0 0 0 2px rgba(92,188,200,.22)}
+:root[data-theme="dark"] .sheet .bg{background:rgba(0,0,0,.6)}
+:root[data-theme="dark"] .b-today{color:#08222a}
+:root[data-theme="dark"] .addrow button{background:var(--sea);color:#08222a}
+:root[data-theme="dark"] nav button[aria-selected="true"]{color:#fff}
+
+/* ---------- appearance switch in the menu ---------- */
+.seglabel{font-size:11.5px;font-weight:700;color:var(--muted);margin:14px 4px 6px}
+.seg{display:flex;gap:6px;margin-bottom:8px}
+.seg button{
+  flex:1;padding:11px 6px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+  font-size:14px;font-weight:650;color:var(--muted);
+}
+.seg button[aria-pressed="true"]{background:var(--sea-deep);border-color:var(--sea-deep);color:#fff}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -772,7 +826,7 @@ function freshState(){
     days: JSON.parse(JSON.stringify(SEED_DAYS)).map(d=>({...d, done:false, note:"", actual:""})),
     beaches: {},
     pack: SEED_PACK.map((t,i)=>({id:"p"+i, text:t, done:false})),
-    filter:"all", tab:"plan", q:""
+    filter:"all", tab:"plan", q:"", theme:"auto"
   };
 }
 let S = store.read() || freshState();
@@ -784,6 +838,7 @@ let S = store.read() || freshState();
   if(!S.beaches) S.beaches={};
   if(!S.pack) S.pack = SEED_PACK.map((t,i)=>({id:"p"+i,text:t,done:false}));
   if(typeof S.q!=="string") S.q="";
+  if(!S.theme) S.theme="auto";
   if(!S.tab) S.tab="plan";
   if(!S.filter) S.filter="all";
   S.days.sort((a,b)=>a.date.localeCompare(b.date));
@@ -809,6 +864,15 @@ function bullet(line){
 function dayDiff(a,b){ return Math.round((Date.parse(b+"T00:00:00")-Date.parse(a+"T00:00:00"))/864e5); }
 let saveT;
 function saveSoon(){ clearTimeout(saveT); saveT=setTimeout(save,250); }
+
+const THEME_LABEL={auto:"Podľa systému", light:"Svetlý", dark:"Tmavý"};
+function applyTheme(){
+  const t=S.theme||"auto", root=document.documentElement;
+  if(t==="auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme",t);
+  const dark = t==="dark" || (t==="auto" && matchMedia("(prefers-color-scheme:dark)").matches);
+  $("#tc").setAttribute("content", dark?"#0a2028":"#0a3d4d");
+}
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{ if((S.theme||"auto")==="auto") applyTheme(); });
 
 let toastT;
 function toast(msg){
@@ -1113,6 +1177,11 @@ function openSheet(){
     <button class="big" data-m="export">Zálohovať do súboru<small>Uloží poznámky, odškrtnuté dni a úpravy ako .json</small></button>
     <button class="big" data-m="import">Načítať zálohu<small>Prepíše aktuálny stav zo súboru</small></button>
     <button class="big" data-m="share">Zdieľať poznámky ako text<small>Pošlite si zhrnutie do správy alebo mailu</small></button>
+    <div class="seglabel">Vzhľad</div>
+    <div class="seg" role="group" aria-label="Vzhľad">
+      ${["auto","light","dark"].map(t=>
+        `<button data-th="${t}" aria-pressed="${(S.theme||"auto")===t}">${THEME_LABEL[t]}</button>`).join("")}
+    </div>
     <button class="big danger" data-m="reset">Vrátiť na pôvodný plán<small>Zmaže všetky odškrtnutia a poznámky</small></button>
     <div style="font-size:12.5px;color:var(--muted);padding:8px 4px 0;line-height:1.5">
       Všetko sa ukladá len do tohto telefónu. Funguje aj bez internetu — mapy sa otvoria, keď signál bude.
@@ -1126,6 +1195,13 @@ document.addEventListener("keydown",e=>{
 });
 sheet.addEventListener("click",e=>{
   if(e.target.dataset.close!==undefined){ closeSheet(); return; }
+  const th=e.target.closest("[data-th]")?.dataset.th;
+  if(th){
+    S.theme=th; save(); applyTheme();
+    sheet.querySelectorAll("[data-th]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.th===th));
+    toast("Vzhľad: "+THEME_LABEL[th]);
+    return;
+  }
   const m=e.target.closest("[data-m]")?.dataset.m; if(!m) return;
   if(m==="export"){
     const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
@@ -1186,6 +1262,7 @@ $("#ringBtn").addEventListener("click",()=>{
 });
 
 function boot(){
+  applyTheme();
   qBox.value=S.q||"";
   syncSearch();
   document.querySelectorAll("#filters .chip").forEach(x=>x.setAttribute("aria-pressed", x.dataset.f===S.filter));
